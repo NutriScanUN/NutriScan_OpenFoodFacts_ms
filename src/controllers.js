@@ -1,5 +1,6 @@
 const fetch = require("node-fetch");
 const { OffData } = require("./utils");
+const FormData = require("form-data");
 
 async function getProfuctOffInternal(req, res, FullData = false){
   console.log("OpenFoodFacts product query");
@@ -38,19 +39,69 @@ async function getProfuctOffInternal(req, res, FullData = false){
       nutriscore: data.product.nutriscore_grade
     };
 
-    const infoProducto = OffData(data);
+    const productInfo = OffData(data);
 
 
-    console.log("succesfull");
+    console.log("succesfull: ", product);
     if(FullData){
-      res.send({product, infoProducto, data})
+      res.send({producto: product, infoProducto: productInfo, data})
     }else{
-      res.send({product, infoProducto});
+      res.send({producto: product, infoProducto: productInfo});
     }
   }
   catch(error) {
     console.error("error", error);
     res.status(500).send({message:"error retrieving product", error})
+  }
+}
+
+async function createProductOFFInternal(req, res){
+
+  try {
+  /** @type {{infoProducto: import('./utils').NutritionalInfo}}*/
+  const {producto, infoProducto} = req.body;
+
+  const OffFormData = new FormData();
+  OffFormData.append("user_id", "jurodriguezch");
+  OffFormData.append("password", "OpenFoodFactsNutriScan");
+  OffFormData.append("code", producto.referencia);
+  OffFormData.append("product_name", producto.nombre);
+  OffFormData.append("categories", producto.categorias.join(", "))
+  OffFormData.append("lang", "es");
+  OffFormData.append("quantity", `${infoProducto.cantidad.toString()} ${infoProducto.unidadCantidad}`);
+  OffFormData.append("nutrition_data_per", "100g");
+  OffFormData.append("nutriment_energy", infoProducto.energia.toString());
+  OffFormData.append("nutriment_energy_unit", infoProducto.unidadEnergia)
+
+  OffFormData.append("nutriment_fiber", infoProducto.fibra.toString());
+  OffFormData.append("nutriment_fiber_unit", infoProducto.unidadFibra);
+  OffFormData.append("nutriment_fat", infoProducto.grasas.toString());
+  OffFormData.append("nutriment_fat_unit", infoProducto.unidadGrasas);
+  OffFormData.append("nutriment_saturated-fat", infoProducto.grasaSaturada.toString());
+  OffFormData.append("nutriment_saturated-fat_unit", infoProducto.unidadGrasaSaturada);
+  OffFormData.append("nutriment_carbohydrates", infoProducto.carbohidratos.toString());
+  OffFormData.append("nutriment_carbohydrates_unit", infoProducto.unidadCarbohidratos);
+  OffFormData.append("nutriment_sugars", infoProducto.azucar.toString());
+  OffFormData.append("nutriment_sugars_unit", infoProducto.unidadAzucar);
+  OffFormData.append("nutriment_sodium", infoProducto.sodio.toString());
+  OffFormData.append("nutriment_sodium_unit", infoProducto.unidadSodio);
+  OffFormData.append("nutriment_proteins", infoProducto.proteina.toString());
+  OffFormData.append("nutriment_proteins_unit", infoProducto.unidadProteina);
+  
+  const requestOptions = {
+    method: "POST",
+    body: OffFormData
+  };
+    
+    const OffRes = await fetch("https://co.openfoodfacts.net/cgi/product_jqm2.pl", requestOptions);
+    const info = await OffRes.json();
+  
+    console.log(info);
+    res.status(OffRes.status).send(info);
+
+  } catch(error) {
+    console.error("error creating product: ", error);
+    res.status(500).send({message: "error creating product", error})
   }
 }
 
@@ -65,4 +116,52 @@ module.exports =  {
     return getProfuctOffInternal(req, res);
   },
   
+  async createProductOFF(req, res) {
+    return createProductOFFInternal(req, res);
+  },
+
+  async uploadOffImg(req, res){
+    try {
+      const { referencia } = req.body;
+      const file = req.file;
+  
+      console.log("uploadOffImage", {code: referencia, inageField:"front_es", file});
+  
+      if(file){
+  
+        const formdata = new FormData();
+        formdata.append("user_id", "jurodriguezch");
+        formdata.append("password", "OpenFoodFactsNutriScan");
+        formdata.append("code", referencia);
+        formdata.append("imagefield", "front_es");
+        formdata.append(`imgupload_${"front_es"}`, file.buffer, {
+          filename: file.originalname,
+          contentType: file.mimetype,
+          knownLength: file.size
+        });
+  
+        const requestOptions = {
+          method: "POST",
+          body: formdata
+        };
+  
+      // @ts-expect-error
+        const response = await fetch("https://world.openfoodfacts.net/cgi/product_image_upload.pl", requestOptions);
+        const result = await response.json();
+  
+        console.log("success");
+        res.status(200).json(result);
+      }else{
+        throw new Error("field offimg return undefined")
+      }
+  
+    } catch(error){
+      console.error("error on uploadOffImg: ", error);
+      if (error instanceof Error) {
+        res.status(500).json({"message":error.message});
+      }else{
+        res.status(500).json(error);
+      }
+    }
+  }
 };
