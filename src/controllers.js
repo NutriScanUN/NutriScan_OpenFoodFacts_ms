@@ -8,7 +8,7 @@ async function getProfuctOffInternal(req, res, FullData = false){
   try{
     const { ref } = req.params;
 
-    const url = `https://world.openfoodfacts.net/api/v2/product/${ref}`
+    const url = `https://world.openfoodfacts.org/api/v2/product/${ref}`
     console.log("URL: ", url)
     const OffRes = await fetch(url);
 
