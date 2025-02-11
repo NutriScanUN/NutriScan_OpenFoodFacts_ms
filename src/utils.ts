@@ -1,35 +1,35 @@
-    /**
- * @typedef {Object} NutritionalInfo
- * @property {number} carbohidratos - Value for carbohydrates.
- * @property {string} unidadCarbohidratos - Unit for carbohydrates.
- * @property {number} grasas - Value for fats.
- * @property {string} unidadGrasas - Unit for fats.
- * @property {number} grasaSaturada - Value for saturated fats.
- * @property {string} unidadGrasaSaturada - Unit for saturated fats.
- * @property {number} azucar - Value for sugars.
- * @property {string} unidadAzucar - Unit for sugars.
- * @property {number} proteina - Value for proteins.
- * @property {string} unidadProteina - Unit for proteins.
- * @property {number} sodio - Value for sodium.
- * @property {string} unidadSodio - Unit for sodium.
- * @property {number} fibra - Value for fiber.
- * @property {string} unidadFibra - Unit for fiber.
- * @property {number} energia - Value for energy.
- * @property {string} unidadEnergia - Unit for energy.
- * @property {number} cantidad - Product quantity.
- * @property {string} unidadCantidad - Unit for product quantity.
- * @property {string} imagenFrontalUrl - URL for the front image.
- * @property {string[]} nivelesAltos - List of high nutrient levels, translated.
- */
 
-const translations = {
+export type NutritionalInfo = {
+  carbohidratos: number;
+  unidadCarbohidratos: string;
+  grasas: number;
+  unidadGrasas: string;
+  grasaSaturada: number;
+  unidadGrasaSaturada: string;
+  azucar: number;
+  unidadAzucar: string;
+  proteina: number;
+  unidadProteina: string;
+  sodio: number;
+  unidadSodio: string;
+  fibra: number;
+  unidadFibra: string;
+  energia: number;
+  unidadEnergia: string;
+  cantidad: number;
+  unidadCantidad: string;
+  imagenFrontalUrl: string;
+  nivelesAltos: string[];
+};
+
+const translations: any = {
   "fat": "Grasas",
   "salt": "Sal",
   "saturated-fat": "Grasas saturadas",
   "sugars": "Azúcares"
 };
 
-function getQuantityUnit(quantity){
+function getQuantityUnit(quantity: string){
   if(!quantity) return "";
   let list = quantity.split(" ");
   if(list[1]) return list[1];
@@ -39,12 +39,10 @@ function getQuantityUnit(quantity){
   return quantity.slice(quantity.length-1);
 }
 
-function OffData(data){
+export function OffData(data: any){
     const {nutriments, quantity, product_quantity, product_quantity_unit, image_url, nutrient_levels} = data.product;
 
-
-/** @type {NutritionalInfo} */
-    const offData = {
+    const offData : NutritionalInfo = {
       carbohidratos: nutriments.carbohydrates_value,
       unidadCarbohidratos: nutriments.carbohydrates_unit,
       grasas: nutriments.fat_value,
@@ -71,5 +69,3 @@ function OffData(data){
 
     return offData;
 }
-
-module.exports = { OffData }

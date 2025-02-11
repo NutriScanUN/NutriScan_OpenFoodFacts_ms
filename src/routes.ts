@@ -1,6 +1,7 @@
-const express = require("express");
-const controllers = require("./controllers");
-const multer = require("multer");
+import express from "express";
+import controllers from "./controllers.js";
+import multer from "multer";
+
 const router = express.Router();
 
 const storage = multer.memoryStorage();
@@ -13,4 +14,4 @@ router.post("/", controllers.createProductOFF);
 router.post("/image", upload.single("offimg"), controllers.uploadOffImg)
 
 
-module.exports = router;
+export default router;

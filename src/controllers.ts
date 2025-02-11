@@ -1,14 +1,30 @@
-const fetch = require("node-fetch");
-const { OffData } = require("./utils");
-const FormData = require("form-data");
+import { OffData, NutritionalInfo } from "./utils.js";
+import FormData from "form-data";
+import { Request, Response } from "express";
 
-async function getProfuctOffInternal(req, res, FullData = false){
+import("node-fetch").then(res => {
+  if(!globalThis.fetch){
+    // @ts-expect-error
+    globalThis.fetch = res.default;
+    // @ts-expect-error
+    globalThis.Headers = res.Headers;
+    // @ts-expect-error
+    globalThis.Request = res.Request
+    // @ts-expect-error
+    globalThis.Response = res.Response;
+    globalThis.Blob = res.Blob;
+  }
+})
+
+const GET_URI = process.env.GET_OFF_URI || "";
+
+async function getProfuctOffInternal(req: Request, res: Response, FullData = false){
   console.log("OpenFoodFacts product query");
 
   try{
     const { ref } = req.params;
 
-    const url = `https://world.openfoodfacts.org/api/v2/product/${ref}`
+    const url = `${GET_URI}/${ref}`
     console.log("URL: ", url)
     const OffRes = await fetch(url);
 
@@ -35,7 +51,7 @@ async function getProfuctOffInternal(req, res, FullData = false){
       referencia: data.product.id,
       nombre: data.product.product_name_es ?? data.product.product_name,
       foto: data.product.image_url,
-      categorias: data.product.categories.split(",").map(s => s.trim()),
+      categorias: data.product.categories.split(",").map((s:string) => s.trim()),
       nutriscore: data.product.nutriscore_grade
     };
 
@@ -55,11 +71,16 @@ async function getProfuctOffInternal(req, res, FullData = false){
   }
 }
 
-async function createProductOFFInternal(req, res){
+type ProductBaseInfo = {
+  referencia: string;
+  nombre: string;
+  categorias: string[];
+}
+
+async function createProductOFFInternal(req: Request, res: Response){
 
   try {
-  /** @type {{infoProducto: import('./utils').NutritionalInfo}}*/
-  const {producto, infoProducto} = req.body;
+  const {producto, infoProducto}: {producto: ProductBaseInfo, infoProducto: NutritionalInfo} = req.body;
 
   const OffFormData = new FormData();
   OffFormData.append("user_id", "jurodriguezch");
@@ -92,12 +113,13 @@ async function createProductOFFInternal(req, res){
     method: "POST",
     body: OffFormData
   };
-    
-    const OffRes = await fetch("https://co.openfoodfacts.net/cgi/product_jqm2.pl", requestOptions);
-    const info = await OffRes.json();
   
-    console.log(info);
-    res.status(OffRes.status).send(info);
+// @ts-expect-error
+  const OffRes = await fetch("https://co.openfoodfacts.net/cgi/product_jqm2.pl", requestOptions);
+  const info = await OffRes.json();
+
+  console.log(info);
+  res.status(OffRes.status).send(info);
 
   } catch(error) {
     console.error("error creating product: ", error);
@@ -106,21 +128,20 @@ async function createProductOFFInternal(req, res){
 }
 
 
-module.exports =  {
-
-  async getProfuctOffFullData(req, res){
+export default {
+  async getProfuctOffFullData(req: Request, res: Response){
     return getProfuctOffInternal(req, res, true);
   },
 
-  async getProfuctOff(req, res) {
+  async getProfuctOff(req: Request, res: Response) {
     return getProfuctOffInternal(req, res);
   },
   
-  async createProductOFF(req, res) {
+  async createProductOFF(req: Request, res: Response) {
     return createProductOFFInternal(req, res);
   },
 
-  async uploadOffImg(req, res){
+  async uploadOffImg(req: Request, res: Response){
     try {
       const { referencia } = req.body;
       const file = req.file;
