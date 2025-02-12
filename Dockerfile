@@ -12,7 +12,7 @@ RUN npm install
 # Copiar todo el código al contenedor
 COPY . .
 
-RUN 
+RUN npm run build
 
 # Exponer el puerto
 EXPOSE 3004
