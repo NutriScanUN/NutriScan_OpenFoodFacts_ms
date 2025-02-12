@@ -18,4 +18,4 @@ RUN npm run build
 EXPOSE 3004
 
 # Comando para iniciar la aplicación
-CMD ["node", "src/app.js"]
+CMD ["node", "built/app.js"]
