@@ -18,6 +18,7 @@
   },
   "scripts": {
     "dev": "tsc && concurrently \"tsc -w\" \"nodemon built/app.js\"",
+    "build": "tsc",
     "run": "node built/app.js"
   }
 }
