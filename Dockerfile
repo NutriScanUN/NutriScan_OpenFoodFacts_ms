@@ -1,17 +1,13 @@
-FROM node:16-alpine
+FROM node:lts
 
 # Crear y establecer el directorio de trabajo
-WORKDIR /usr/src/app
-
-# Copiar package.json y package-lock.json
-COPY package*.json ./
- 
-# Instalar dependencias
-RUN npm install
+WORKDIR /
 
 # Copiar todo el código al contenedor
 COPY . .
-
+ 
+# Instalar dependencias
+RUN npm install
 RUN npm run build
 
 # Exponer el puerto
