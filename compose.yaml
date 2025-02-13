@@ -1,0 +1,16 @@
+services:
+  openfoodfacts-ms:
+    build: .
+    ports:
+      - "3004:3004"
+    env_file: ".env"
+    develop:
+      watch:
+        - action: rebuild
+          path: ./
+          target: /usr/app
+          ignore:
+            - node_modules/
+            - built/
+            - README.md
+            - .gitignore

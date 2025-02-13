@@ -1,11 +1,11 @@
 FROM node:lts
 
 # Crear y establecer el directorio de trabajo
-WORKDIR /
+WORKDIR /usr/app
 
 # Copiar todo el código al contenedor
 COPY . .
- 
+
 # Instalar dependencias
 RUN npm install
 RUN npm run build
