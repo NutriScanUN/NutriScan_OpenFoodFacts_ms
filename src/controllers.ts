@@ -51,7 +51,7 @@ async function getProfuctOffInternal(req: Request, res: Response, FullData = fal
       referencia: data.product.id,
       nombre: data.product.product_name_es ?? data.product.product_name,
       foto: data.product.image_url,
-      categorias: data.product.categories.split(",").map((s:string) => s.trim()),
+      categorias: (data.product.categories as string).split(",").map((s:string) => s.trim()).filter((s) => !s.startsWith("en:")),
       nutriscore: data.product.nutriscore_grade
     };
 
