@@ -16,7 +16,7 @@ export type NutritionalInfo = {
   unidadFibra: string;
   energia: number;
   unidadEnergia: string;
-  cantidad: number;
+  cantidad: string;
   unidadCantidad: string;
   imagenFrontalUrl: string;
   nivelesAltos: string[];
